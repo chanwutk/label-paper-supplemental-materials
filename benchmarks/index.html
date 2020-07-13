@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/vega-canvas@1.1.0/build/vega-canvas.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega@3/build/vega.js"></script>
+  <script>vegaScenegraph = vega</script>
+  <script src="https://unpkg.com/rbush@2.0.1/rbush.js"></script>
+  <script>RBush = rbush</script>
+  <script src="./build/label.js"></script>
+</head>
+
+<body>  
+  <span>width</span>
+  <input id="size" />
+
+  <span>labeler</span>
+  <select id="labeler">
+    <option value="particle">Particle-Based</option>
+    <option value="pixel">Pixel-Based</option>
+    <option value="improvedParticle">Improved Particle-Based</option>
+    <option value="rbush">Particle-Based + RBush</option>
+  </select>
+
+  <button onclick="render()">render</button>
+
+  <div id="vis"></div>
+  <canvas id="canvas"></canvas>
+  <canvas id="canvas-after"></canvas>
+  
+  <script src="benchmark.js">
+  </script>
+</body>

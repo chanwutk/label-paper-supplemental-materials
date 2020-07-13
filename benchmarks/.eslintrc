@@ -1,0 +1,14 @@
+parserOptions:
+    sourceType: "module"
+    ecmaVersion: 2020
+
+env:
+    es2020: true
+    browser: true
+    node: true
+
+extends:
+    "eslint:recommended"
+
+rules:
+    no-cond-assign: 0
