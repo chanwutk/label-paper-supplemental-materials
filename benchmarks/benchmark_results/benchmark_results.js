@@ -16,10 +16,10 @@ const createSpecLabel = ({ filter, baseline, dx, dy }) => ({
 });
 
 const createSpecCompare = (baselineLabeler, comparingLabeler, criterion, title) => ({
-  "height": 170,
-  "width": 200,
+  "height": 200,
+  "width": 400,
   "encoding": {
-    "x": { ...fieldDef('chart_width', Q), "scale": { "type": "log" }, "title": "Chart width" },
+    "x": { ...fieldDef('chart_width', Q), "title": "Chart width" },
     "y": { ...fieldDef(criterion, Q), "title": title ? title : null, scale: {nice: false}},
     "color": {
       ...fieldDef('labeler', N),
@@ -48,7 +48,7 @@ const createSpecCompare = (baselineLabeler, comparingLabeler, criterion, title) 
       ].map(createSpecLabel)
     },
     {
-      ...createSpecLabel({filter: baselineLabeler, baseline: "middle"}),
+      ...createSpecLabel({filter: baselineLabeler, baseline: "middle", dx: 10}),
       "encoding": {
         "y": fieldDef(`center_${criterion}`, Q),
         "text": fieldDef(`text_diff_${criterion}`, N),

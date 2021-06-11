@@ -66,7 +66,7 @@ def main():
     with open(RESULTS_DIR, 'r') as f:
         data = pd.read_json(f)
 
-    aggregate(data, 'reduced-search', 'floodfill')
+    aggregate(data, 'floodfill', 'reduced-search')
     # aggregate(data, 'particle', 'improvedParticle')
     # aggregate(data, 'improvedParticle', 'pixel')
 
