@@ -1,292 +1,155 @@
-var spec = {
+var spec ={
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "background": "white",
-  "padding": 5,
+  "description": "A searchable, stacked area chart of U.S. occupations from 1850 to 2000.",
   "width": 800,
   "height": 500,
-  "config": {
-    "view": {
-      "stroke": "transparent"
-    }
-  },
+  "padding": 5,
+
+
   "data": [
     {
-      "name": "data_states",
-      "url": "data/us-10m.json",
-      "format": { "type": "topojson", "feature": "states" }
-    },
-    {
-      "name": "projected_states",
-      "source": "data_states",
+      "name": "jobs",
+      "url": "data/jobs.json",
       "transform": [
         {
-          "type": "geopath",
-          "projection": "projection"
+          "type": "stack",
+          "field": "perc",
+          "groupby": ["year"],
+          "sort": {
+            "field": ["job", "sex"],
+            "order": ["descending", "descending"]
+          }
         }
       ]
     },
     {
-      "name": "data_airports",
-      "url": "data/airports.csv",
-      "format": { "type": "csv", "delimiter": "," }
-    },
-    {
-      "name": "data_flights",
-      "url": "data/flights-airport.csv",
-      "format": {
-        "type": "csv",
-        "parse": { "origin": "string" },
-        "delimiter": ","
-      },
-      "transform": [
-        { "type": "filter", "expr": "datum['origin']==='SEA'" },
-        {
-          "type": "lookup",
-          "from": "data_airports",
-          "key": "iata",
-          "fields": ["origin"],
-          "values": ["latitude", "longitude"],
-          "as": ["origin_latitude", "origin_longitude"]
-        },
-        {
-          "type": "lookup",
-          "from": "data_airports",
-          "key": "iata",
-          "fields": ["destination"],
-          "values": ["latitude", "longitude", "name"],
-          "as": ["dest_latitude", "dest_longitude", "name"]
-        },
-        {
-          "type": "geojson",
-          "fields": ["dest_longitude", "dest_latitude"],
-          "signal": "flights_geojson"
-        },
-        {
-          "type": "geopoint",
-          "projection": "projection",
-          "fields": ["origin_longitude", "origin_latitude"],
-          "as": ["origin_x", "origin_y"]
-        },
-        {
-          "type": "geopoint",
-          "projection": "projection",
-          "fields": ["dest_longitude", "dest_latitude"],
-          "as": ["dest_x", "dest_y"]
-        }
-      ]
-    },
-    {
-      "name": "projected_airports",
-      "source": "data_airports",
+      "name": "series",
+      "source": "jobs",
       "transform": [
         {
-          "type": "lookup",
-          "from": "data_flights",
-          "key": "destination",
-          "fields": ["iata"],
-          "values": ["name"],
-          "as": ["is_dest"]
-        },
-        { "type": "filter", "expr": "datum['is_dest']===null" },
-        {
-          "type": "geopoint",
-          "projection": "projection",
-          "fields": ["longitude", "latitude"],
-          "as": ["_x", "_y"]
+          "type": "aggregate",
+          "groupby": ["job", "sex"],
+          "fields": ["perc", "perc"],
+          "ops": ["sum", "argmax"],
+          "as": ["sum", "argmax"]
         }
       ]
     }
   ],
-  "projections": [
+
+  "scales": [
     {
-      "name": "projection",
-      "size": { "signal": "[width, height]" },
-      "fit": {
-        "signal": "[data('data_states'), flights_geojson]"
-      },
-      "type": "albersUsa"
+      "name": "x",
+      "type": "linear",
+      "range": "width",
+      "zero": false, "round": true,
+      "domain": {"data": "jobs", "field": "year"}
+    },
+    {
+      "name": "y",
+      "type": "linear",
+      "range": "height", "round": true, "zero": true,
+      "domain": {"data": "jobs", "field": "y1"}
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": ["men", "women"],
+      "range": ["#33f", "#f33"]
+    },
+    {
+      "name": "alpha",
+      "type": "linear", "zero": true,
+      "domain": {"data": "series", "field": "sum"},
+      "range": [0.4, 0.8]
+    },
+    {
+      "name": "font",
+      "type": "sqrt",
+      "range": [0, 20], "round": true, "zero": true,
+      "domain": {"data": "series", "field": "argmax.perc"}
+    },
+    {
+      "name": "opacity",
+      "type": "quantile",
+      "range": [0, 0, 0, 0, 0, 0.1, 0.2, 0.4, 0.7, 1.0],
+      "domain": {"data": "series", "field": "argmax.perc"}
+    },
+    {
+      "name": "align",
+      "type": "quantize",
+      "range": ["left", "center", "right"], "zero": false,
+      "domain": [1730, 2130]
+    },
+    {
+      "name": "offset",
+      "type": "quantize",
+      "range": [6, 0, -6], "zero": false,
+      "domain": [1730, 2130]
     }
   ],
+
+  "axes": [
+    {
+      "orient": "bottom", "scale": "x", "format": "d", "tickCount": 15
+    },
+    {
+      "orient": "right", "scale": "y", "format": "%",
+      "grid": true, "domain": false, "tickSize": 12,
+      "encode": {
+        "grid": {"enter": {"stroke": {"value": "#ccc"}}},
+        "ticks": {"enter": {"stroke": {"value": "#ccc"}}}
+      }
+    }
+  ],
+
   "marks": [
     {
-      "type": "path",
-      "name": "us_map",
-      "from": { "data": "projected_states" },
-      "encode": {
-        "enter": {
-          "fill": { "value": null },
-          "stroke": { "value": "lightgray" },
-          "strokeWidth": { "value": 1 }
-        },
-        "update": {
-          "path": { "field": "path" }
-        }
-      }
-    },
-    {
-      "name": "airport_points",
-      "type": "symbol",
-      "style": ["circle"],
-      "from": { "data": "projected_airports" },
-      "zindex": 2,
-      "encode": {
-        "update": {
-          "opacity": { "value": 1 },
-          "fill": { "value": "darkgray" },
-          "x": { "field": "_x" },
-          "y": { "field": "_y" },
-          "size": { "value": 4 },
-          "shape": { "value": "circle" }
-        }
-      }
-    },
-    {
-      "name": "reachable_lines",
-      "type": "rule",
-      "style": ["rule"],
-      "from": { "data": "data_flights" },
-      "zindex": 2,
-      "encode": {
-        "update": {
-          "stroke": { "value": "black" },
-          "strokeWidth": { "value": 1 },
-          "x": { "field": "origin_x" },
-          "x2": { "field": "dest_x" },
-          "y": { "field": "origin_y" },
-          "y2": { "field": "dest_y" }
-        }
-      }
-    },
-    {
-      "name": "reachable_endpoints",
-      "type": "symbol",
-      "style": ["circle"],
-      "from": { "data": "reachable_lines" },
-      "zindex": 2,
-      "encode": {
-        "update": {
-          "size": { "value": 6 },
-          "fill": { "value": "black" },
-          "x": { "field": "x2" },
-          "y": { "field": "y2" }
-        }
-      }
-    },
-    {
-      "name": "label_endpoints",
-      "type": "text",
-      "from": { "data": "reachable_endpoints" },
-      "zindex": 2,
-      "encode": {
-        "enter": {
-          "x": { "field": "x" },
-          "y": { "field": "y" },
-          "fill": { "value": "firebrick" },
-          "text": { "field": "datum.datum.name" },
-          "fontSize": { "value": 7 }
+      "type": "group",
+      "name": "hi",
+      "from": {
+        "data": "series",
+        "facet": {
+          "name": "facet",
+          "data": "jobs",
+          "groupby": ["job", "sex"]
         }
       },
-      "transform": [{
-        "type": "label",
-        "size": [500, 300, {"noText": true}],
-        "avoidMarks": ["reachable_lines", "reachable_endpoints"]
-      }]
-    },
-    {
-      "name": "label_endpoints_background",
-      "type": "rect",
-      "from": { "data": "label_endpoints" },
-      "zindex": 1,
-      "encode": {
-        "enter": {
-          "x": { "field": "x0" },
-          "y": { "field": "y0" },
-          "x2": { "field": "x1" },
-          "y2": { "field": "y1" },
-          "fillOpacity": { "value": 0.1 },
-          "fill": { "field": "fill" },
-          "strokeOpacity": { "value": 0.3 },
-          "stroke": { "field": "fill" }
+
+      "marks": [
+        {
+          "type": "area",
+          "from": {"data": "facet"},
+          "encode": {
+            "enter": {
+              "x": {"scale": "x", "field": "year"},
+              "y": {"scale": "y", "field": "y0"},
+              "y2": {"scale": "y", "field": "y1"},
+              "fill": {"scale": "color", "field": "sex"},
+              "fillOpacity": {"scale": "alpha", "field": {"parent": "sum"}}
+            }
+          }
         }
-      }
+      ]
     },
     {
-      "name": "label_airports",
       "type": "text",
-      "from": { "data": "airport_points" },
-      "zindex": 2,
+      "from": {"data": "hi"},
+      "interactive": false,
       "encode": {
         "enter": {
-          "x": { "field": "x" },
-          "y": { "field": "y" },
-          "fill": { "value": "teal" },
-          "text": { "field": "datum.name" },
-          "fontSize": { "value": 5 }
+          "fontSize": {value: 10},
+          "text": {"field": "datum.job"}
         }
       },
-      "transform": [{
-        "type": "label",
-        "size": [500, 300, {}],
-        "avoidMarks": [
-          "reachable_lines",
-          "label_endpoints_background",
-          "reachable_endpoints",
-          "airport_points",
-          "us_map"
-        ]
-      }]
-    },
-    {
-      "name": "label_airports_background",
-      "type": "rect",
-      "from": { "data": "label_airports" },
-      "zindex": 1,
-      "encode": {
-        "enter": {
-          "x": { "field": "x0" },
-          "y": { "field": "y0" },
-          "x2": { "field": "x1" },
-          "y2": { "field": "y1" },
-          "fillOpacity": { "value": 0.1 },
-          "fill": { "field": "fill" },
-          "strokeOpacity": { "value": 0.3 },
-          "stroke": { "field": "fill" }
-        }
-      }
-    },
-    {
-      "name": "label_airports_rule",
-      "type": "rule",
-      "from": { "data": "label_airports" },
-      "zindex": 1,
-      "encode": {
-        "enter": {
-          "x": { "field": "datum.x" },
-          "y": { "field": "datum.y" },
-          "x2": { "field": "xAnchor" },
-          "y2": { "field": "yAnchor" },
-          "strokeOpacity": { "value": 0.3 },
-          "stroke": { "field": "fill" }
-        }
-      }
-    },
-    {
-      "name": "label_endpoints_rule",
-      "type": "rule",
-      "from": { "data": "label_endpoints" },
-      "zindex": 1,
-      "encode": {
-        "enter": {
-          "x": { "field": "datum.x" },
-          "y": { "field": "datum.y" },
-          "x2": { "field": "xAnchor" },
-          "y2": { "field": "yAnchor" },
-          "strokeOpacity": { "value": 0.3 },
-          "stroke": { "field": "fill" }
-        }
-      }
+      "transform": [
+        {"type": "label", "size": {"signal": "[width, height]"}, "avoidBaseMark": true, "method": "floodfill"}
+      ]
     }
   ]
-};
+}
+
+ 
+;
 
 module.exports = { spec: spec };

@@ -9,7 +9,7 @@ var NUM_TESTS = 20;
 var sizes = Label.benchmarkUtils.sizes;
 var resize = Label.benchmarkUtils.resize;
 // var labelers = ["particle", "improvedParticle", "pixel"];
-var labelers = ["particle", "improvedParticle", "pixel"];
+var labelers = ["floodfill", "reduced-search"];
 
 async function test(s) {
   // create a new view instance for a given Vega JSON spec

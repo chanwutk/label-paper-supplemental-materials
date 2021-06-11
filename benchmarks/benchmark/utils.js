@@ -9,24 +9,24 @@ function resize(spec, size, labeler, id) {
   spec["padding"] = 5 * size / 1000;
   
   // chart size
-  spec["marks"][4]["transform"][0]["size"] = [size, height, {noTest: true, id: id}];
-  spec["marks"][6]["transform"][0]["size"] = [size, height, {id: id}];
+  spec["marks"][1]["transform"][0]["size"] = [size, height, {id: id, num_point: 220, chart_width: size, }];
+  // spec["marks"][3]["transform"][0]["size"] = [size, height, {id: id}];
 
   // labeler
-  spec["marks"][4]["transform"][0]["labeler"] = "pixel";
-  spec["marks"][6]["transform"][0]["labeler"] = labeler;
+  spec["marks"][1]["transform"][0]["method"] = labeler;
+  // spec["marks"][3]["transform"][0]["method"] = labeler;
   
   // line width
-  spec["marks"][0]["encode"]["enter"]["strokeWidth"]["value"] = 0.5 * size / 1000;
-  spec["marks"][2]["encode"]["update"]["strokeWidth"]["value"] = 0.5 * size / 1000;
+  // spec["marks"][0]["encode"]["enter"]["strokeWidth"]["value"] = 0.5 * size / 1000;
+  // spec["marks"][2]["encode"]["update"]["strokeWidth"]["value"] = 0.5 * size / 1000;
 
   // point radius
-  spec["marks"][1]["encode"]["update"]["size"]["value"] = Math.pow(1 * size / 1000, 2) * Math.PI;
-  spec["marks"][3]["encode"]["update"]["size"]["value"] = Math.pow(1.5 * size / 1000, 2) * Math.PI;
+  // spec["marks"][1]["encode"]["update"]["size"]["value"] = Math.pow(1 * size / 1000, 2) * Math.PI;
+  // spec["marks"][3]["encode"]["update"]["size"]["value"] = Math.pow(1.5 * size / 1000, 2) * Math.PI;
 
   // font size
-  spec["marks"][4]["encode"]["enter"]["fontSize"]["value"] = 7 * size / 1000;
-  spec["marks"][6]["encode"]["enter"]["fontSize"]["value"] = 5 * size / 1000;
+  spec["marks"][1]["encode"]["enter"]["fontSize"]["value"] = 5 * size / 1000;
+  // spec["marks"][3]["encode"]["enter"]["fontSize"]["value"] = 5 * size / 1000;
 
   return spec;
 }

@@ -6,9 +6,9 @@ BASE_DIR = './benchmark_results/results'
 RESULTS_DIR = join(BASE_DIR, 'results.json')
 
 ORDER = {
-    "particle": 0,
-    "improvedParticle": 1,
-    "pixel": 2
+    "floodfill": 0,
+    "reduced-search": 1,
+    # "pixel": 2
 }
 GB_FIELDS = ["chart_width", "labeler"]
 
@@ -66,9 +66,9 @@ def main():
     with open(RESULTS_DIR, 'r') as f:
         data = pd.read_json(f)
 
-    aggregate(data, 'particle', 'pixel')
-    aggregate(data, 'particle', 'improvedParticle')
-    aggregate(data, 'improvedParticle', 'pixel')
+    aggregate(data, 'reduced-search', 'floodfill')
+    # aggregate(data, 'particle', 'improvedParticle')
+    # aggregate(data, 'improvedParticle', 'pixel')
 
 
 if __name__ == '__main__':

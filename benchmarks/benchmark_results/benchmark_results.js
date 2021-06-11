@@ -2,12 +2,11 @@ const Q = 'quantitative';
 const N = 'nominal';
 
 const LABELERS_LEGENDS = {
-  pixel: 'Bitmap',
-  particle: 'Particle',
-  improvedParticle: 'Improved Particle',
+  floodfill: 'Bitmap',
+  'reduced-search': 'Particle',
 };
 
-const LABELERS = ['particle', 'improvedParticle', 'pixel'];
+const LABELERS = ['floodfill', 'reduced-search'];
 
 const filterLabeler = (labeler) => ({ filter: `datum.labeler === '${labeler}'` });
 const fieldDef = (field, type) => ({ field, type });
@@ -85,19 +84,19 @@ const spec = {
   "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
   "hconcat": [
     createSpecCompareRuntimeAndQuality(
-      'particle',
-      'pixel',
+      'floodfill',
+      'reduced-search',
       true
     ),
-    createSpecCompareRuntimeAndQuality(
-      'improvedParticle',
-      'pixel',
-      null
-    ),
-    createSpecCompareRuntimeAndQuality(
-      'particle',
-      'improvedParticle',
-      null
-    ),
+    // createSpecCompareRuntimeAndQuality(
+    //   'improvedParticle',
+    //   'pixel',
+    //   null
+    // ),
+    // createSpecCompareRuntimeAndQuality(
+    //   'particle',
+    //   'improvedParticle',
+    //   null
+    // ),
   ]
 }
